@@ -1,0 +1,36 @@
+=== Part A - Reliability metrics ===
+failures            : 12
+total downtime      : 27 h
+total uptime        : 693 h
+availability        : 0.9625 (96.25%)
+MTTF                : 57.75 h
+MTTR                : 2.25 h
+MTBF                : 60.00 h
+
+downtime per component:
+  Primary Database        3 failures, 13 h
+  Application Server A    3 failures,  5 h
+  Application Server B    2 failures,  4 h
+  Campus Network          2 failures,  3 h
+  Load Balancer           2 failures,  2 h
+
+=== Part B - RBD ===
+Application (A or B)        : 1 - (1-0.970)*(1-0.970) = 0.999100
+Database (Primary or Standby): 1 - (1-0.980)*(1-0.990) = 0.999800
+Load Balancer (single)      : 0.995000
+Campus Network (single)     : 0.995000
+Overall (series)            : 0.9950 * 0.999100 * 0.999800 * 0.9950 = 0.988936
+
+=== Part C - FMEA (RPN = S * O * D) ===
+  Primary Database     S= 9 O= 5 D= 4 -> RPN=180
+  Standby Database     S= 8 O= 2 D= 8 -> RPN=128
+  Campus Network       S= 9 O= 3 D= 3 -> RPN= 81
+  Load Balancer        S=10 O= 3 D= 2 -> RPN= 60
+  Application A        S= 4 O= 5 D= 3 -> RPN= 60
+  Application B        S= 4 O= 4 D= 3 -> RPN= 48
+  top 3: Primary Database, Standby Database, Campus Network
+
+=== Part D - FTA ===
+Application subsystem unavailable (AND): 0.000900
+Database subsystem unavailable (AND)   : 0.000200
+TOP EVENT - portal unavailable (OR)    : 1 - 0.988936 = 0.011064 (1.11%)

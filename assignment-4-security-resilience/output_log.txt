@@ -1,0 +1,70 @@
+incident_analysis.py v1.0  run at 2026-09-22 20:36:09
+
+============================================================================
+PART A - INCIDENT ANALYSIS
+============================================================================
+time   event                              stage                 risk     evidence
+09:01  15 failed logins                   reconnaissance        Medium   first burst 15 from one IP, attacker probes accounts
+09:03  21 failed logins                   credential attack     High     15 -> 21 fails, 10.5/min from same IP = brute force
+09:04  Successful login                   privilege compromise  High     success from 10.20.4.15 right after 36 fails
+09:07  320 files modified                 data destruction      Critical 320 files changed remotely 3 min after the login
+09:08  CPU usage increased to 95%         lateral movement      High     source moves from 10.20.4.15 to the server itself, 95% cpu = payload runs there
+09:10  1,200 files encrypted              data destruction      Critical 1200 files encrypted by 09:10, ~400 files/min since 09:07
+09:12  Backup deletion attempt            recovery attack       Critical tries to delete backups 2 min after encryption so we cant restore
+09:13  Outbound connection to unknown IP  exfiltration          High     server talks to unknown ip right after encryption = double extortion / c2
+09:15  Database access spike              exfiltration          High     db spike after outbound channel opened = dumping research data
+09:18  Antivirus disabled                 persistence           Critical av off at the end so the implant survives and next run isnt caught
+
+stages used: 8 of 8 -> credential attack, data destruction, exfiltration, lateral movement, persistence, privilege compromise, reconnaissance, recovery attack
+first sign 09:01 -> encryption 09:10: 9 min window to react
+
+============================================================================
+PART B - RISK MATRIX (Risk = L x I, 1-4 Low, 5-9 Medium, 10-16 High, 17-25 Critical)
+============================================================================
+Credential compromise  L=5 I=4 risk=20 Critical already happened, no lockout / no mfa
+Ransomware             L=4 I=5 risk=20 Critical 320 modified + 1200 encrypted, research stops
+Data exfiltration      L=4 I=4 risk=16 High     outbound + db spike seen, personal/research data leak
+Privilege escalation   L=4 I=4 risk=16 High     backup delete and av off need admin rights
+Backup destruction     L=3 I=5 risk=15 High     only an attempt, but success = no recovery at all
+
+============================================================================
+PART C - REPLAY OF THE INCIDENT AGAINST MY DETECTION RULES
+============================================================================
+09:03  R1 brute force       fires on '21 failed logins'  (SIEM: >=20 failed logins from one ip in 5 min)
+09:04  R2 login after fails fires on 'Successful login'  (SIEM: success after >=10 fails)
+09:07  R3 mass file change  fires on '320 files modified'  (EDR/FIM: >=100 files changed per minute)
+09:12  R4 backup delete     fires on 'Backup deletion attempt'  (backup api: any delete call)
+09:13  R5 egress unknown    fires on 'Outbound connection to unknown IP'  (IDS/firewall: egress not in allowlist)
+09:18  R6 av tamper         fires on 'Antivirus disabled'  (EDR: security service stopped)
+
+before (what happened, only host av which got disabled): 1520 files hit, backup delete tried, data out
+after, detection only (first alert 09:03 R1 brute force + 2 min isolation -> contained 09:05): 0 files hit
+after, only file rule R3 (09:07 + 2 min -> 09:09): 320 files hit
+after, with prevention (MFA + lockout after 5 fails): 09:04 login never succeeds -> 0 files, attack ends at stage 2
+
+============================================================================
+PART D - RECOVERY PLAN (RPO <= 5 min, RTO <= 30 min)
+============================================================================
+1 Detect incident          SIEM correlation R1/R3 + EDR alert to on-call                                    +2  min  T+2
+2 Isolate affected system  EDR network isolation, firewall rule, disable account                            +3  min  T+5
+3 Preserve evidence        disk + memory snapshot, logs to WORM storage, sha256                             +5  min  T+10
+4 Activate backup          last clean immutable snapshot (5 min interval) into recovery env                 +5  min  T+15
+5 Restore services         rebuild from golden image in recovery env, attach restored data, failover DNS    +8  min  T+23
+6 Verify integrity         hash check vs manifest, EDR scan, test logins                                    +5  min  T+28
+7 Return to production     switch traffic, new creds + MFA, extra monitoring 72h                            +2  min  T+30
+RTO = 30 min -> OK
+snapshots every 5 min: last clean one 09:05, first damage 09:07 -> data loss 2 min, worst case 5 min -> RPO OK
+
+============================================================================
+PART E - AI-ASSISTED DETECTION (anomaly if score >= 0.75)
+============================================================================
+Login failures       normal=0.10 observed=0.81 deviation=+0.71 x8.1 ANOMALY
+File modifications   normal=0.12 observed=0.96 deviation=+0.84 x8.0 ANOMALY
+CPU usage            normal=0.20 observed=0.88 deviation=+0.68 x4.4 ANOMALY
+Outbound traffic     normal=0.15 observed=0.79 deviation=+0.64 x5.3 ANOMALY
+Database requests    normal=0.18 observed=0.91 deviation=+0.73 x5.1 ANOMALY
+
+detected 5 of 5 -> rate 100%
+highest priority: File modifications (score 0.96, deviation +0.84)
+ranking by deviation: File modifications 0.84, Database requests 0.73, Login failures 0.71, CPU usage 0.68, Outbound traffic 0.64
+smallest margin over threshold: 0.04 (if threshold was 0.80 outbound traffic would be missed)

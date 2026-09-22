@@ -1,0 +1,126 @@
+payment_processor.py v1.0  run at 2026-09-22 19:41:23
+
+======================================================================
+PART A - BASELINE (no fault tolerance, stops on first failure)
+======================================================================
+19:41:23.876 tx=T001 amount=12000 result=success
+19:41:23.876 tx=T002 failure=Network result=CRASH msg="bank gateway unreachable"
+19:41:23.876 event=processor_stopped at=T002
+  attempted    2
+  success      1
+  lost         14
+  processed    12000
+  lost_amount  425000
+  retries      0
+  rollbacks    0
+
+======================================================================
+PART B - EXCEPTION HANDLING (try/except, classify, log, continue)
+======================================================================
+19:41:23.876 tx=T001 amount=12000 result=success
+19:41:23.876 tx=T002 failure=Network exception=NetworkError action=logged_and_skipped result=failed
+19:41:23.876 tx=T003 amount=8000 result=success
+19:41:23.876 tx=T004 failure=Timeout exception=PaymentTimeoutError action=logged_and_skipped result=failed
+19:41:23.876 tx=T005 amount=13000 result=success
+19:41:23.876 tx=T006 failure=Database exception=DatabaseError action=logged_and_skipped result=failed
+19:41:23.876 tx=T007 amount=9000 result=success
+19:41:23.876 tx=T008 failure=Network exception=NetworkError action=logged_and_skipped result=failed
+19:41:23.876 tx=T009 amount=15000 result=success
+19:41:23.876 tx=T010 failure=Timeout exception=PaymentTimeoutError action=logged_and_skipped result=failed
+19:41:23.876 tx=T011 amount=6000 result=success
+19:41:23.876 tx=T012 failure=Database exception=DatabaseError action=logged_and_skipped result=failed
+19:41:23.876 tx=T013 amount=11000 result=success
+19:41:23.876 tx=T014 amount=22000 result=success
+19:41:23.876 tx=T015 failure=Network exception=NetworkError action=logged_and_skipped result=failed
+  success=8 failed=7 processed=96000
+
+======================================================================
+PART C + D - RETRY + CHECKPOINT + ROLLBACK
+======================================================================
+19:41:23.876 step=1 tx=T001 attempt=1 gateway=charged result=success
+19:41:23.876 step=2 tx=T002 attempt=1 failure=Network action=retry
+19:41:23.876 step=3 tx=T002 attempt=2 gateway=charged result=success
+19:41:23.876 step=4 tx=T003 attempt=1 gateway=charged result=success
+19:41:23.876 step=5 tx=T004 attempt=1 failure=Timeout action=retry
+19:41:23.876 step=6 tx=T004 attempt=2 failure=Timeout action=retry
+19:41:23.876 step=7 tx=T004 attempt=3 gateway=already_charged result=success
+19:41:23.876 step=8 tx=T005 attempt=1 gateway=charged result=success
+19:41:23.876 event=checkpoint cp=CP1 count=5 total=103000 ids=T001..T005
+19:41:23.876 step=9 tx=T006 attempt=1 failure=Database action=retry
+19:41:23.876 step=10 tx=T006 attempt=2 failure=Database action=retry
+19:41:23.876 step=11 tx=T006 attempt=3 failure=Database action=retries_exhausted
+19:41:23.876 event=rollback tx=T006 to=CP1 count=5 total=103000 replay=0
+19:41:23.876 step=12 tx=T007 attempt=1 gateway=charged result=success
+19:41:23.876 step=13 tx=T008 attempt=1 failure=Network action=retry
+19:41:23.876 step=14 tx=T008 attempt=2 gateway=charged result=success
+19:41:23.876 step=15 tx=T009 attempt=1 gateway=charged result=success
+19:41:23.876 step=16 tx=T010 attempt=1 failure=Timeout action=retry
+19:41:23.876 step=17 tx=T010 attempt=2 failure=Timeout action=retry
+19:41:23.876 step=18 tx=T010 attempt=3 gateway=already_charged result=success
+19:41:23.876 step=19 tx=T011 attempt=1 gateway=charged result=success
+19:41:23.876 event=checkpoint cp=CP2 count=10 total=214000 ids=T001..T011
+19:41:23.876 step=20 tx=T012 attempt=1 failure=Database action=retry
+19:41:23.876 step=21 tx=T012 attempt=2 failure=Database action=retry
+19:41:23.876 step=22 tx=T012 attempt=3 failure=Database action=retries_exhausted
+19:41:23.876 event=rollback tx=T012 to=CP2 count=10 total=214000 replay=0
+19:41:23.876 step=23 tx=T013 attempt=1 gateway=charged result=success
+19:41:23.876 step=24 tx=T014 attempt=1 gateway=charged result=success
+19:41:23.876 step=25 tx=T015 attempt=1 failure=Network action=retry
+19:41:23.876 step=26 tx=T015 attempt=2 gateway=charged result=success
+19:41:23.876 event=end_of_batch
+19:41:23.876 event=checkpoint cp=CP3 count=13 total=287000 ids=T001..T015
+
+======================================================================
+ATTEMPT LOG (generated)
+======================================================================
+step  tx    attempt  failure   action                               result
+1     T001  1        None      commit                               Success
+2     T002  1        Network   retry                                Fail
+3     T002  2        Network   commit                               Success
+4     T003  1        None      commit                               Success
+5     T004  1        Timeout   retry                                Fail
+6     T004  2        Timeout   retry                                Fail
+7     T004  3        Timeout   commit (idempotent, no 2nd charge)   Success
+8     T005  1        None      commit                               Success
+9     T006  1        Database  retry                                Fail
+10    T006  2        Database  retry                                Fail
+11    T006  3        Database  rollback                             Rollback
+12    T007  1        None      commit                               Success
+13    T008  1        Network   retry                                Fail
+14    T008  2        Network   commit                               Success
+15    T009  1        None      commit                               Success
+16    T010  1        Timeout   retry                                Fail
+17    T010  2        Timeout   retry                                Fail
+18    T010  3        Timeout   commit (idempotent, no 2nd charge)   Success
+19    T011  1        None      commit                               Success
+20    T012  1        Database  retry                                Fail
+21    T012  2        Database  retry                                Fail
+22    T012  3        Database  rollback                             Rollback
+23    T013  1        None      commit                               Success
+24    T014  1        None      commit                               Success
+25    T015  1        Network   retry                                Fail
+26    T015  2        Network   commit                               Success
+
+======================================================================
+CHECKPOINTS
+======================================================================
+  CP1 count=5 total=103000 ids=T001,T002,T003,T004,T005
+  CP2 count=10 total=214000 ids=T001,T002,T003,T004,T005,T007,T008,T009,T010,T011
+  CP3 count=13 total=287000 ids=T001,T002,T003,T004,T005,T007,T008,T009,T010,T011,T013,T014,T015
+
+  bank charged total=287000  ledger total=287000  match=True
+
+======================================================================
+PART E - BEFORE / AFTER
+======================================================================
+  successful   baseline=1        ft=13       diff=12
+  failed       baseline=14       ft=2        diff=-12
+  lost amount  baseline=425000   ft=150000   diff=-275000
+  retries      baseline=0        ft=11       diff=11
+  rollbacks    baseline=0        ft=2        diff=2
+  completion   baseline=6.67% ft=86.67% diff=+80.00 pp
+  recovery: 5 of 7 faulty transactions recovered = 71.4%
+  loss reduction (count):  (14-2)/14 = 85.7%
+  loss reduction (amount): (425000-150000)/425000 = 64.7%
+  contribution: exceptions only -> 7 success, retry adds -> 5
+  total attempts with retry: 26

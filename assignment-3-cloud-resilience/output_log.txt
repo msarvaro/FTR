@@ -1,0 +1,67 @@
+resilience_lab.py v1.0  run at 2026-09-23 01:10:57
+
+========================================================================
+PART B - AVAILABILITY
+========================================================================
+Auth         1-(1-0.995)*(1-0.995) = 0.999975
+Course       1-(1-0.995)*(1-0.995) = 0.999975
+Registration 1-(1-0.995)*(1-0.995) = 0.999975
+Database     1-(1-0.997)*(1-0.997) = 0.999991
+End-to-end   0.9995*0.999*0.999975*0.999975*0.999975*0.999991 = 0.998417 (99.842%)
+target 99.9% met: False
+downtime/year: 13.9 h (allowed at 99.9%: 8.8 h)
+downtime/month: 69 min (allowed: 43 min)
+
+what-if (one change at a time):
+  2nd API Gateway            0.999415  (+0.0998 pp)  meets 99.9%: True
+  2nd Load Balancer          0.998916  (+0.0499 pp)  meets 99.9%: False
+  3rd Registration replica   0.998441  (+0.0025 pp)  meets 99.9%: False
+  2nd gateway + 2nd LB       0.999915  (+0.1498 pp)
+
+========================================================================
+PART D - FAILURE EXPERIMENTS
+========================================================================
+config from k8s\registration-service.yaml (PyYAML): replicas=2
+readiness={'initialDelaySeconds': 3, 'periodSeconds': 2, 'timeoutSeconds': 1, 'failureThreshold': 2, 'successThreshold': 1}
+liveness ={'initialDelaySeconds': 10, 'periodSeconds': 5, 'timeoutSeconds': 1, 'failureThreshold': 3}
+traffic: 20 req/s through gateway -> Service -> registration pods -> db
+
+   3.57s  EVENT readiness: registration-0 READY -> added to Service endpoints
+   3.60s  EVENT readiness: registration-1 READY -> added to Service endpoints
+
+   6.64s  --- EXPERIMENT 1: kill one registration replica ---
+   6.64s  INJECT kill registration-0
+   6.65s  EVENT kubelet: registration-0 container exited, restart in 0s (restarts=0)
+   6.65s  EVENT kubelet: registration-0 restarted
+   9.70s  EVENT readiness: registration-0 READY -> added to Service endpoints
+  10.71s  RESULT detection=0.1s recovery=3.1s requests=60 failed=0
+
+  13.71s  --- EXPERIMENT 2: kill ALL registration replicas ---
+  13.71s  INJECT kill registration-0, registration-1
+  13.73s  EVENT kubelet: registration-0 container exited, restart in 10s (restarts=1)
+  13.73s  EVENT kubelet: registration-1 container exited, restart in 0s (restarts=0)
+  13.74s  EVENT kubelet: registration-1 restarted
+  16.79s  EVENT readiness: registration-1 READY -> added to Service endpoints
+  23.77s  EVENT kubelet: registration-0 restarted
+  26.87s  EVENT readiness: registration-0 READY -> added to Service endpoints
+  27.90s  RESULT detection=0.1s service back=3.1s full capacity=13.2s requests=62 failed=61
+
+  30.90s  --- EXPERIMENT 3: database primary down ---
+  30.90s  INJECT kill db primary (476 rows at that moment)
+  30.92s  EVENT db-controller: primary 15432 not answering
+  33.44s  EVENT readiness: registration-0 NOT READY -> removed from endpoints
+  33.74s  EVENT db-controller: FAILOVER, standby 15433 promoted
+  33.97s  EVENT readiness: registration-1 NOT READY -> removed from endpoints
+  35.12s  EVENT readiness: registration-0 READY -> added to Service endpoints
+  35.66s  EVENT readiness: registration-1 READY -> added to Service endpoints
+  37.25s  RESULT detection=0.1s recovery=4.3s requests=29 failed=27 rows_before=476 standby_rows=518 lost=0
+
+========================================================================
+SUMMARY
+========================================================================
+#   failure                     detect     recover    requests  failed  note
+1   One Registration replica    0.1s       3.1s       60        0 (0%)  other pod served everything
+2   All Registration replicas   0.1s       3.1s       62        61 (98%) full capacity after 13.2s (backoff)
+3   Database unavailable        0.1s       4.3s       29        27 (93%) rows before=476, on standby now=518, lost=0
+
+whole run: 607 requests, 518 ok, 85.34% success

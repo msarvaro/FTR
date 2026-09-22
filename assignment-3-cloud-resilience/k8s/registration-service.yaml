@@ -1,0 +1,108 @@
+# Assignment 3 - synthetic AITU Registration Service
+# Sarvarov Mustafa, 255609, CSE-2501M
+# no real AITU endpoints / credentials, image and secret names are placeholders
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registration
+  namespace: student-services
+  labels:
+    app: registration
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  minReadySeconds: 5
+  selector:
+    matchLabels:
+      app: registration
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # start the new pod first
+      maxUnavailable: 0    # never go below 2 ready pods during deploy
+  template:
+    metadata:
+      labels:
+        app: registration
+    spec:
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      # 2 replicas on the same node are not independent, so spread them
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: registration
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: registration
+          image: registry.example.local/aitu-demo/registration-service:1.0.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: registration-db.student-services.svc.cluster.local
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: registration-db-secret   # synthetic, not included
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          # readiness checks the app AND its db connection -> pod leaves the Service fast
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 2
+            timeoutSeconds: 1
+            failureThreshold: 2
+            successThreshold: 1
+          # liveness checks only the process, never the db,
+          # otherwise a db outage restarts every pod for nothing
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 5"]   # let the Service drop the pod before it stops
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registration
+  namespace: student-services
+spec:
+  type: ClusterIP
+  selector:
+    app: registration
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: registration-pdb
+  namespace: student-services
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: registration

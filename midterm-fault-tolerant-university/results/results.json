@@ -1,0 +1,1300 @@
+{
+ "backend": "local",
+ "started": "2026-10-04 00:31:24",
+ "runs": {
+  "baseline": {
+   "E1": {
+    "failure": "Application crash (student-1)",
+    "stats": {
+     "requests": 1157,
+     "ok": 0,
+     "failed": 1157,
+     "success_rate": 0.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 0,
+     "p95_ms": 0,
+     "max_ms": 0,
+     "first_failure_s": 0.03,
+     "service_recovery_s": null,
+     "not_recovered": true,
+     "window_s": 20.1,
+     "outage_s": 20.09,
+     "timeline": {
+      "-3": [
+       58,
+       0
+      ],
+      "-2": [
+       54,
+       0
+      ],
+      "-1": [
+       54,
+       0
+      ],
+      "0": [
+       0,
+       60
+      ],
+      "1": [
+       0,
+       60
+      ],
+      "2": [
+       0,
+       54
+      ],
+      "3": [
+       0,
+       60
+      ],
+      "4": [
+       0,
+       54
+      ],
+      "5": [
+       0,
+       60
+      ],
+      "6": [
+       0,
+       60
+      ],
+      "7": [
+       0,
+       54
+      ],
+      "8": [
+       0,
+       60
+      ],
+      "9": [
+       0,
+       54
+      ],
+      "10": [
+       0,
+       60
+      ],
+      "11": [
+       0,
+       57
+      ],
+      "12": [
+       0,
+       57
+      ],
+      "13": [
+       0,
+       60
+      ],
+      "14": [
+       0,
+       54
+      ],
+      "15": [
+       0,
+       60
+      ],
+      "16": [
+       0,
+       60
+      ],
+      "17": [
+       0,
+       54
+      ],
+      "18": [
+       0,
+       60
+      ],
+      "19": [
+       0,
+       54
+      ],
+      "20": [
+       0,
+       5
+      ]
+     }
+    },
+    "detection": [
+     0.03,
+     "user-visible failure"
+    ],
+    "component_back_s": null,
+    "consistency": {
+     "acked_writes": 59,
+     "acked_but_lost": 0,
+     "duplicate_rows": 0
+    },
+    "duration_s": 24.8
+   },
+   "E2": {
+    "failure": "Database failure (primary killed)",
+    "stats": {
+     "requests": 52,
+     "ok": 1,
+     "failed": 51,
+     "success_rate": 1.92,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 14,
+     "p95_ms": 14,
+     "max_ms": 14,
+     "first_failure_s": 0.01,
+     "service_recovery_s": null,
+     "not_recovered": true,
+     "window_s": 25.0,
+     "outage_s": 25.03,
+     "timeline": {
+      "-3": [
+       58,
+       0
+      ],
+      "-2": [
+       54,
+       0
+      ],
+      "-1": [
+       58,
+       0
+      ],
+      "0": [
+       1,
+       9
+      ],
+      "3": [
+       0,
+       6
+      ],
+      "6": [
+       0,
+       6
+      ],
+      "9": [
+       0,
+       6
+      ],
+      "12": [
+       0,
+       6
+      ],
+      "15": [
+       0,
+       6
+      ],
+      "18": [
+       0,
+       6
+      ],
+      "21": [
+       0,
+       6
+      ]
+     }
+    },
+    "detection": [
+     0.01,
+     "user-visible failure"
+    ],
+    "failover_s": null,
+    "consistency": {
+     "acked_writes": 138,
+     "acked_but_lost": 0,
+     "duplicate_rows": 0
+    },
+    "duration_s": 32.2
+   },
+   "E3": {
+    "failure": "Service timeout (+3 s latency)",
+    "stats": {
+     "requests": 36,
+     "ok": 0,
+     "failed": 36,
+     "success_rate": 0.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 0,
+     "p95_ms": 0,
+     "max_ms": 0,
+     "first_failure_s": 3.01,
+     "service_recovery_s": null,
+     "not_recovered": true,
+     "window_s": 18.7,
+     "outage_s": 18.72,
+     "timeline": {
+      "-3": [
+       54,
+       0
+      ],
+      "-2": [
+       54,
+       0
+      ],
+      "-1": [
+       57,
+       0
+      ],
+      "0": [
+       0,
+       6
+      ],
+      "3": [
+       0,
+       6
+      ],
+      "6": [
+       0,
+       6
+      ],
+      "9": [
+       0,
+       6
+      ],
+      "12": [
+       0,
+       6
+      ],
+      "15": [
+       0,
+       6
+      ]
+     }
+    },
+    "detection": [
+     3.01,
+     "user-visible failure"
+    ],
+    "consistency": {
+     "note": "read-only load, nothing to corrupt"
+    },
+    "duration_s": 22.7
+   },
+   "E4": {
+    "failure": "Node failure (node A frozen 15 s)",
+    "stats": {
+     "requests": 474,
+     "ok": 450,
+     "failed": 24,
+     "success_rate": 94.94,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 7,
+     "p95_ms": 13,
+     "max_ms": 2591,
+     "first_failure_s": 3.04,
+     "service_recovery_s": 12.39,
+     "not_recovered": false,
+     "window_s": 23.1,
+     "outage_s": 12.35,
+     "timeline": {
+      "-3": [
+       56,
+       0
+      ],
+      "-2": [
+       58,
+       0
+      ],
+      "-1": [
+       54,
+       0
+      ],
+      "0": [
+       0,
+       6
+      ],
+      "3": [
+       0,
+       6
+      ],
+      "6": [
+       0,
+       6
+      ],
+      "9": [
+       0,
+       6
+      ],
+      "12": [
+       6,
+       0
+      ],
+      "15": [
+       52,
+       0
+      ],
+      "16": [
+       56,
+       0
+      ],
+      "17": [
+       54,
+       0
+      ],
+      "18": [
+       56,
+       0
+      ],
+      "19": [
+       58,
+       0
+      ],
+      "20": [
+       54,
+       0
+      ],
+      "21": [
+       60,
+       0
+      ],
+      "22": [
+       54,
+       0
+      ]
+     }
+    },
+    "detection": [
+     3.04,
+     "user-visible failure"
+    ],
+    "consistency": {
+     "balance_sum": 137000,
+     "payments_sum": 137000,
+     "payment_rows": 137,
+     "duplicates": 0,
+     "consistent": true
+    },
+    "duration_s": 28.1
+   },
+   "E5": {
+    "failure": "Interrupted payment + transcript batch",
+    "stats": {
+     "requests": 36,
+     "ok": 0,
+     "failed": 36,
+     "success_rate": 0.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 0,
+     "p95_ms": 0,
+     "max_ms": 0,
+     "first_failure_s": 1.17,
+     "service_recovery_s": null,
+     "not_recovered": true,
+     "window_s": 14.7,
+     "outage_s": 14.53,
+     "timeline": {
+      "-3": [
+       12,
+       0
+      ],
+      "-2": [
+       15,
+       0
+      ],
+      "-1": [
+       15,
+       0
+      ],
+      "0": [
+       0,
+       3
+      ],
+      "1": [
+       0,
+       3
+      ],
+      "2": [
+       0,
+       3
+      ],
+      "3": [
+       0,
+       3
+      ],
+      "5": [
+       0,
+       3
+      ],
+      "6": [
+       0,
+       3
+      ],
+      "7": [
+       0,
+       3
+      ],
+      "8": [
+       0,
+       3
+      ],
+      "9": [
+       0,
+       3
+      ],
+      "11": [
+       0,
+       3
+      ],
+      "12": [
+       0,
+       3
+      ],
+      "13": [
+       0,
+       3
+      ]
+     }
+    },
+    "detection": [
+     1.17,
+     "user-visible failure"
+    ],
+    "consistency": {
+     "balance_sum": 46000,
+     "payments_sum": 45000,
+     "payment_rows": 45,
+     "duplicates": 0,
+     "consistent": false
+    },
+    "batch": {
+     "batch_id": "B-baseline",
+     "size": 300,
+     "checkpoint": 300,
+     "status": "done",
+     "rows": 449,
+     "unique_students": 300,
+     "duplicates": 149,
+     "missing": 0,
+     "running_here": false,
+     "completed_after_s": 15.4
+    },
+    "duration_s": 33.7
+   },
+   "E6": {
+    "failure": "High load (80 concurrent clients)",
+    "stats": {
+     "requests": 4917,
+     "ok": 4917,
+     "failed": 0,
+     "success_rate": 100.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 156,
+     "p95_ms": 739,
+     "max_ms": 2991,
+     "first_failure_s": null,
+     "service_recovery_s": null,
+     "not_recovered": false,
+     "window_s": 15.5,
+     "outage_s": 0.0,
+     "timeline": {
+      "-1": [
+       82,
+       0
+      ],
+      "0": [
+       165,
+       0
+      ],
+      "1": [
+       148,
+       0
+      ],
+      "2": [
+       150,
+       0
+      ],
+      "3": [
+       138,
+       0
+      ],
+      "4": [
+       149,
+       0
+      ],
+      "5": [
+       411,
+       0
+      ],
+      "6": [
+       478,
+       0
+      ],
+      "7": [
+       474,
+       0
+      ],
+      "8": [
+       465,
+       0
+      ],
+      "9": [
+       420,
+       0
+      ],
+      "10": [
+       432,
+       0
+      ],
+      "11": [
+       435,
+       0
+      ],
+      "12": [
+       392,
+       0
+      ],
+      "13": [
+       359,
+       0
+      ],
+      "14": [
+       301,
+       0
+      ]
+     },
+     "throughput_ok_per_s": 317.0,
+     "rejected_fast_503": 0,
+     "client_timeouts": 0
+    },
+    "detection": [
+     null,
+     "-"
+    ],
+    "consistency": {
+     "note": "read load"
+    },
+    "duration_s": 15.6
+   }
+  },
+  "ft": {
+   "E1": {
+    "failure": "Application crash (student-1)",
+    "stats": {
+     "requests": 1108,
+     "ok": 1108,
+     "failed": 0,
+     "success_rate": 100.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 3,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 7,
+     "p95_ms": 13,
+     "max_ms": 104,
+     "first_failure_s": null,
+     "service_recovery_s": null,
+     "not_recovered": false,
+     "window_s": 20.1,
+     "outage_s": 0.0,
+     "timeline": {
+      "-3": [
+       58,
+       0
+      ],
+      "-2": [
+       54,
+       0
+      ],
+      "-1": [
+       57,
+       0
+      ],
+      "0": [
+       54,
+       0
+      ],
+      "1": [
+       54,
+       0
+      ],
+      "2": [
+       55,
+       0
+      ],
+      "3": [
+       56,
+       0
+      ],
+      "4": [
+       58,
+       0
+      ],
+      "5": [
+       54,
+       0
+      ],
+      "6": [
+       54,
+       0
+      ],
+      "7": [
+       56,
+       0
+      ],
+      "8": [
+       58,
+       0
+      ],
+      "9": [
+       54,
+       0
+      ],
+      "10": [
+       54,
+       0
+      ],
+      "11": [
+       57,
+       0
+      ],
+      "12": [
+       55,
+       0
+      ],
+      "13": [
+       56,
+       0
+      ],
+      "14": [
+       55,
+       0
+      ],
+      "15": [
+       56,
+       0
+      ],
+      "16": [
+       57,
+       0
+      ],
+      "17": [
+       57,
+       0
+      ],
+      "18": [
+       54,
+       0
+      ],
+      "19": [
+       54,
+       0
+      ]
+     }
+    },
+    "detection": [
+     0.11,
+     "cb_open"
+    ],
+    "component_back_s": null,
+    "consistency": {
+     "acked_writes": 423,
+     "acked_but_lost": 0,
+     "duplicate_rows": 0
+    },
+    "duration_s": 24.1
+   },
+   "E2": {
+    "failure": "Database failure (primary killed)",
+    "stats": {
+     "requests": 1148,
+     "ok": 902,
+     "failed": 246,
+     "success_rate": 78.57,
+     "degraded": 25,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 8,
+     "p95_ms": 14,
+     "max_ms": 44,
+     "first_failure_s": 1.11,
+     "service_recovery_s": 6.02,
+     "not_recovered": false,
+     "window_s": 22.1,
+     "outage_s": 6.01,
+     "timeline": {
+      "-3": [
+       55,
+       0
+      ],
+      "-2": [
+       55,
+       0
+      ],
+      "-1": [
+       55,
+       0
+      ],
+      "0": [
+       0,
+       6
+      ],
+      "1": [
+       7,
+       24
+      ],
+      "2": [
+       5,
+       49
+      ],
+      "3": [
+       5,
+       55
+      ],
+      "4": [
+       4,
+       53
+      ],
+      "5": [
+       3,
+       54
+      ],
+      "6": [
+       51,
+       5
+      ],
+      "7": [
+       53,
+       0
+      ],
+      "8": [
+       56,
+       0
+      ],
+      "9": [
+       54,
+       0
+      ],
+      "10": [
+       55,
+       0
+      ],
+      "11": [
+       56,
+       0
+      ],
+      "12": [
+       57,
+       0
+      ],
+      "13": [
+       54,
+       0
+      ],
+      "14": [
+       55,
+       0
+      ],
+      "15": [
+       54,
+       0
+      ],
+      "16": [
+       57,
+       0
+      ],
+      "17": [
+       54,
+       0
+      ],
+      "18": [
+       54,
+       0
+      ],
+      "19": [
+       56,
+       0
+      ],
+      "20": [
+       58,
+       0
+      ],
+      "21": [
+       54,
+       0
+      ]
+     }
+    },
+    "detection": [
+     0.32,
+     "primary_unreachable"
+    ],
+    "failover_s": 2.43,
+    "consistency": {
+     "acked_writes": 657,
+     "acked_but_lost": 0,
+     "duplicate_rows": 0
+    },
+    "duration_s": 26.2
+   },
+   "E3": {
+    "failure": "Service timeout (+3 s latency)",
+    "stats": {
+     "requests": 705,
+     "ok": 705,
+     "failed": 0,
+     "success_rate": 100.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 18,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 8,
+     "p95_ms": 18,
+     "max_ms": 1110,
+     "first_failure_s": null,
+     "service_recovery_s": null,
+     "not_recovered": false,
+     "window_s": 16.1,
+     "outage_s": 0.0,
+     "timeline": {
+      "-3": [
+       58,
+       0
+      ],
+      "-2": [
+       55,
+       0
+      ],
+      "-1": [
+       54,
+       0
+      ],
+      "0": [
+       12,
+       0
+      ],
+      "1": [
+       42,
+       0
+      ],
+      "2": [
+       54,
+       0
+      ],
+      "3": [
+       54,
+       0
+      ],
+      "4": [
+       54,
+       0
+      ],
+      "5": [
+       54,
+       0
+      ],
+      "6": [
+       11,
+       0
+      ],
+      "7": [
+       39,
+       0
+      ],
+      "8": [
+       54,
+       0
+      ],
+      "9": [
+       58,
+       0
+      ],
+      "10": [
+       54,
+       0
+      ],
+      "11": [
+       54,
+       0
+      ],
+      "12": [
+       17,
+       0
+      ],
+      "13": [
+       36,
+       0
+      ],
+      "14": [
+       56,
+       0
+      ],
+      "15": [
+       56,
+       0
+      ]
+     }
+    },
+    "detection": [
+     1.04,
+     "cb_open"
+    ],
+    "consistency": {
+     "note": "read-only load, nothing to corrupt"
+    },
+    "duration_s": 20.1
+   },
+   "E4": {
+    "failure": "Node failure (node A frozen 15 s)",
+    "stats": {
+     "requests": 1175,
+     "ok": 1175,
+     "failed": 0,
+     "success_rate": 100.0,
+     "degraded": 304,
+     "masked_by_gateway_retry": 9,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 6,
+     "p95_ms": 12,
+     "max_ms": 2234,
+     "first_failure_s": null,
+     "service_recovery_s": null,
+     "not_recovered": false,
+     "window_s": 23.0,
+     "outage_s": 0.0,
+     "timeline": {
+      "-3": [
+       57,
+       0
+      ],
+      "-2": [
+       54,
+       0
+      ],
+      "-1": [
+       55,
+       0
+      ],
+      "0": [
+       8,
+       0
+      ],
+      "1": [
+       5,
+       0
+      ],
+      "2": [
+       33,
+       0
+      ],
+      "3": [
+       58,
+       0
+      ],
+      "4": [
+       56,
+       0
+      ],
+      "5": [
+       57,
+       0
+      ],
+      "6": [
+       57,
+       0
+      ],
+      "7": [
+       55,
+       0
+      ],
+      "8": [
+       59,
+       0
+      ],
+      "9": [
+       55,
+       0
+      ],
+      "10": [
+       59,
+       0
+      ],
+      "11": [
+       54,
+       0
+      ],
+      "12": [
+       60,
+       0
+      ],
+      "13": [
+       55,
+       0
+      ],
+      "14": [
+       59,
+       0
+      ],
+      "15": [
+       54,
+       0
+      ],
+      "16": [
+       57,
+       0
+      ],
+      "17": [
+       57,
+       0
+      ],
+      "18": [
+       55,
+       0
+      ],
+      "19": [
+       56,
+       0
+      ],
+      "20": [
+       57,
+       0
+      ],
+      "21": [
+       55,
+       0
+      ],
+      "22": [
+       54,
+       0
+      ]
+     }
+    },
+    "detection": [
+     2.13,
+     "cb_open"
+    ],
+    "consistency": {
+     "balance_sum": 286000,
+     "payments_sum": 286000,
+     "payment_rows": 286,
+     "duplicates": 0,
+     "consistent": true
+    },
+    "duration_s": 28.0
+   },
+   "E5": {
+    "failure": "Interrupted payment + transcript batch",
+    "stats": {
+     "requests": 198,
+     "ok": 198,
+     "failed": 0,
+     "success_rate": 100.0,
+     "degraded": 0,
+     "masked_by_gateway_retry": 3,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 9,
+     "p95_ms": 18,
+     "max_ms": 107,
+     "first_failure_s": null,
+     "service_recovery_s": null,
+     "not_recovered": false,
+     "window_s": 14.2,
+     "outage_s": 0.0,
+     "timeline": {
+      "-3": [
+       12,
+       0
+      ],
+      "-2": [
+       15,
+       0
+      ],
+      "-1": [
+       15,
+       0
+      ],
+      "0": [
+       12,
+       0
+      ],
+      "1": [
+       15,
+       0
+      ],
+      "2": [
+       15,
+       0
+      ],
+      "3": [
+       12,
+       0
+      ],
+      "4": [
+       15,
+       0
+      ],
+      "5": [
+       15,
+       0
+      ],
+      "6": [
+       14,
+       0
+      ],
+      "7": [
+       13,
+       0
+      ],
+      "8": [
+       15,
+       0
+      ],
+      "9": [
+       15,
+       0
+      ],
+      "10": [
+       13,
+       0
+      ],
+      "11": [
+       14,
+       0
+      ],
+      "12": [
+       15,
+       0
+      ],
+      "13": [
+       15,
+       0
+      ]
+     }
+    },
+    "detection": [
+     0.38,
+     "cb_open"
+    ],
+    "consistency": {
+     "balance_sum": 243000,
+     "payments_sum": 243000,
+     "payment_rows": 243,
+     "duplicates": 0,
+     "consistent": true
+    },
+    "batch": {
+     "batch_id": "B-ft",
+     "size": 300,
+     "checkpoint": 300,
+     "status": "done",
+     "rows": 300,
+     "unique_students": 300,
+     "duplicates": 0,
+     "missing": 0,
+     "running_here": false,
+     "completed_after_s": 8.7
+    },
+    "duration_s": 25.9
+   },
+   "E6": {
+    "failure": "High load (80 concurrent clients)",
+    "stats": {
+     "requests": 6652,
+     "ok": 3541,
+     "failed": 3111,
+     "success_rate": 53.23,
+     "degraded": 0,
+     "masked_by_gateway_retry": 0,
+     "recovered_by_client_retry": 0,
+     "p50_ms": 234,
+     "p95_ms": 706,
+     "max_ms": 1685,
+     "first_failure_s": 0.1,
+     "service_recovery_s": null,
+     "not_recovered": true,
+     "window_s": 15.2,
+     "outage_s": 15.11,
+     "timeline": {
+      "-1": [
+       74,
+       11
+      ],
+      "0": [
+       202,
+       148
+      ],
+      "1": [
+       172,
+       141
+      ],
+      "2": [
+       148,
+       133
+      ],
+      "3": [
+       153,
+       126
+      ],
+      "4": [
+       165,
+       147
+      ],
+      "5": [
+       316,
+       297
+      ],
+      "6": [
+       272,
+       240
+      ],
+      "7": [
+       293,
+       280
+      ],
+      "8": [
+       266,
+       230
+      ],
+      "9": [
+       238,
+       212
+      ],
+      "10": [
+       291,
+       262
+      ],
+      "11": [
+       283,
+       264
+      ],
+      "12": [
+       239,
+       210
+      ],
+      "13": [
+       239,
+       207
+      ],
+      "14": [
+       263,
+       214
+      ],
+      "15": [
+       1,
+       0
+      ]
+     },
+     "throughput_ok_per_s": 233.6,
+     "rejected_fast_503": 3122,
+     "client_timeouts": 0
+    },
+    "detection": [
+     0.1,
+     "user-visible failure"
+    ],
+    "consistency": {
+     "note": "read load"
+    },
+    "duration_s": 15.3
+   }
+  }
+ }
+}

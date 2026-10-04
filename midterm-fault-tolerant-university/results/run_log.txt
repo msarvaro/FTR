@@ -1,0 +1,78 @@
+==============================================================================
+    0.0s  run started 2026-10-04 00:31:24, backend=local
+==============================================================================
+    0.0s  BASELINE E1 - exp_app_crash
+    6.6s  inject: crash student-1 (process exits with code 1)
+   26.7s  operator restarts student-1 (manual repair) to check the data
+   27.3s  result: requests=1157 ok=0 failed=1157 (0.0% ok) degraded=0 masked_by_retry=0 detection=(0.03, 'user-visible failure') recovery=not recovered outage=20.1s p95=0ms
+   27.3s  extra: {"component_back_s": null}
+   27.3s  consistency: {"acked_writes": 59, "acked_but_lost": 0, "duplicate_rows": 0}
+==============================================================================
+   27.3s  BASELINE E2 - exp_db_failure
+   33.7s  inject: kill db-primary (SIGKILL, stays down)
+   58.7s  operator restarts db-primary (manual repair) to check the data
+   61.9s  result: requests=52 ok=1 failed=51 (1.9% ok) degraded=0 masked_by_retry=0 detection=(0.01, 'user-visible failure') recovery=not recovered outage=25.0s p95=14ms
+   61.9s  extra: {"failover_s": null}
+   61.9s  consistency: {"acked_writes": 138, "acked_but_lost": 0, "duplicate_rows": 0}
+==============================================================================
+   61.9s  BASELINE E3 - exp_timeout
+   68.5s  inject: +3000 ms latency on student-1 (slow dependency)
+   87.2s  result: requests=36 ok=0 failed=36 (0.0% ok) degraded=0 masked_by_retry=0 detection=(3.01, 'user-visible failure') recovery=not recovered outage=18.7s p95=0ms
+   87.2s  consistency: {"note": "read-only load, nothing to corrupt"}
+==============================================================================
+   87.2s  BASELINE E4 - exp_node_failure
+   94.7s  inject: node A frozen (pause student-1, payment-1, timetable) for 15 s
+  109.7s  node A back
+  117.8s  result: requests=474 ok=450 failed=24 (94.9% ok) degraded=0 masked_by_retry=0 detection=(3.04, 'user-visible failure') recovery=12.39 outage=12.3s p95=13ms
+  117.8s  consistency: {"balance_sum": 137000, "payments_sum": 137000, "payment_rows": 137, "duplicates": 0, "consistent": true}
+==============================================================================
+  117.8s  BASELINE E5 - exp_lost_transaction
+  123.2s  inject: payment-1 dies in the middle of the next payment
+  137.9s  operator restarts payment-1 to check the data
+  138.5s  inject: records service dies after 150 of 300 transcripts
+  146.6s  operator notices, restarts records and submits the batch again
+  153.9s  result: requests=36 ok=0 failed=36 (0.0% ok) degraded=0 masked_by_retry=0 detection=(1.17, 'user-visible failure') recovery=not recovered outage=14.5s p95=0ms
+  153.9s  consistency: {"balance_sum": 46000, "payments_sum": 45000, "payment_rows": 45, "duplicates": 0, "consistent": false}
+  153.9s  batch: {"batch_id": "B-baseline", "size": 300, "checkpoint": 300, "status": "done", "rows": 449, "unique_students": 300, "duplicates": 149, "missing": 0, "running_here": false, "completed_after_s": 15.4}
+==============================================================================
+  153.9s  BASELINE E6 - exp_high_load
+  156.5s  inject: 80 concurrent clients without pause for 15 s
+  172.0s  result: requests=4917 ok=4917 failed=0 (100.0% ok) degraded=0 masked_by_retry=0 detection=(None, '-') recovery=None outage=0.0s p95=739ms
+  172.0s  extra: {"throughput_ok_per_s": 317.0, "rejected_fast_503": 0, "client_timeouts": 0}
+  172.0s  consistency: {"note": "read load"}
+==============================================================================
+  172.0s  FT E1 - exp_app_crash
+  179.7s  inject: crash student-1 (process exits with code 1)
+  199.8s  result: requests=1108 ok=1108 failed=0 (100.0% ok) degraded=0 masked_by_retry=3 detection=(0.11, 'cb_open') recovery=None outage=0.0s p95=13ms
+  199.8s  extra: {"component_back_s": null}
+  199.8s  consistency: {"acked_writes": 423, "acked_but_lost": 0, "duplicate_rows": 0}
+==============================================================================
+  199.8s  FT E2 - exp_db_failure
+  208.3s  inject: kill db-primary (SIGKILL, stays down)
+  230.5s  result: requests=1148 ok=902 failed=246 (78.6% ok) degraded=25 masked_by_retry=0 detection=(0.32, 'primary_unreachable') recovery=6.02 outage=6.0s p95=14ms
+  230.5s  extra: {"failover_s": 2.43}
+  230.5s  consistency: {"acked_writes": 657, "acked_but_lost": 0, "duplicate_rows": 0}
+==============================================================================
+  230.5s  FT E3 - exp_timeout
+  238.8s  inject: +3000 ms latency on student-1 (slow dependency)
+  254.9s  result: requests=705 ok=705 failed=0 (100.0% ok) degraded=0 masked_by_retry=18 detection=(1.04, 'cb_open') recovery=None outage=0.0s p95=18ms
+  254.9s  consistency: {"note": "read-only load, nothing to corrupt"}
+==============================================================================
+  254.9s  FT E4 - exp_node_failure
+  264.9s  inject: node A frozen (pause student-1, payment-1, timetable) for 15 s
+  279.9s  node A back
+  287.9s  result: requests=1175 ok=1175 failed=0 (100.0% ok) degraded=304 masked_by_retry=9 detection=(2.13, 'cb_open') recovery=None outage=0.0s p95=12ms
+  287.9s  consistency: {"balance_sum": 286000, "payments_sum": 286000, "payment_rows": 286, "duplicates": 0, "consistent": true}
+==============================================================================
+  287.9s  FT E5 - exp_lost_transaction
+  295.5s  inject: payment-1 dies in the middle of the next payment
+  309.6s  inject: records service dies after 150 of 300 transcripts
+  318.4s  result: requests=198 ok=198 failed=0 (100.0% ok) degraded=0 masked_by_retry=3 detection=(0.38, 'cb_open') recovery=None outage=0.0s p95=18ms
+  318.4s  consistency: {"balance_sum": 243000, "payments_sum": 243000, "payment_rows": 243, "duplicates": 0, "consistent": true}
+  318.4s  batch: {"batch_id": "B-ft", "size": 300, "checkpoint": 300, "status": "done", "rows": 300, "unique_students": 300, "duplicates": 0, "missing": 0, "running_here": false, "completed_after_s": 8.7}
+==============================================================================
+  318.4s  FT E6 - exp_high_load
+  323.3s  inject: 80 concurrent clients without pause for 15 s
+  338.5s  result: requests=6652 ok=3541 failed=3111 (53.2% ok) degraded=0 masked_by_retry=0 detection=(0.1, 'user-visible failure') recovery=not recovered outage=15.1s p95=706ms
+  338.5s  extra: {"throughput_ok_per_s": 233.6, "rejected_fast_503": 3122, "client_timeouts": 0}
+  338.5s  consistency: {"note": "read load"}

@@ -1,0 +1,45 @@
+{
+ "theory": {
+  "baseline": 0.9762318430710019,
+  "ft": 0.9939463547735495,
+  "assumptions": {
+   "gateway": 0.999,
+   "service_instance": 0.995,
+   "db_node": 0.997
+  }
+ },
+ "measured": {
+  "baseline": {
+   "observed_time_s": 117.1,
+   "failures": 5,
+   "downtime_s": 90.7,
+   "MTTR_s": 18.1,
+   "MTTF_s": 5.3,
+   "MTBF_s": 23.4,
+   "availability_time": 22.53,
+   "availability_requests": 80.46,
+   "failure_rate_per_hour": 153.7,
+   "requests": 6672,
+   "failed_requests": 1304,
+   "recovered_requests": 0,
+   "mean_detection_s": 1.45,
+   "experiments_not_recovered": 4
+  },
+  "ft": {
+   "observed_time_s": 110.7,
+   "failures": 2,
+   "downtime_s": 21.1,
+   "MTTR_s": 10.6,
+   "MTTF_s": 44.8,
+   "MTBF_s": 55.4,
+   "availability_time": 80.92,
+   "availability_requests": 69.44,
+   "failure_rate_per_hour": 65.0,
+   "requests": 10986,
+   "failed_requests": 3357,
+   "recovered_requests": 362,
+   "mean_detection_s": 0.68,
+   "experiments_not_recovered": 1
+  }
+ }
+}

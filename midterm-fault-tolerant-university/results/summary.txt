@@ -1,0 +1,29 @@
+RELIABILITY SUMMARY (backend=local, run 2026-10-04 00:31:24)
+
+theory (assumed: gateway 0.999, service instance 0.995, db node 0.997)
+  baseline  g*s^4*d                 = 0.97623  (97.623%, 208.2 h down/year)
+  ft        g*(1-(1-s)^2)^2*s*(1-(1-d)^2) = 0.99395  (99.395%, 53.0 h down/year)
+
+measured                         baseline             ft
+observed_time_s                     117.1          110.7
+failures                                5              2
+downtime_s                           90.7           21.1
+MTTF_s                                5.3           44.8
+MTTR_s                               18.1           10.6
+MTBF_s                               23.4           55.4
+availability_time                   22.53          80.92
+availability_requests               80.46          69.44
+failure_rate_per_hour               153.7           65.0
+requests                             6672          10986
+failed_requests                      1304           3357
+recovered_requests                      0            362
+mean_detection_s                     1.45           0.68
+experiments_not_recovered               4              1
+
+per experiment (failed requests / outage s / detection s):
+  E1 Application crash (student-1)            base  1157 /  20.1 / 0.03   ft     0 /   0.0 / 0.11
+  E2 Database failure (primary killed)        base    51 /  25.0 / 0.01   ft   246 /   6.0 / 0.32
+  E3 Service timeout (+3 s latency)           base    36 /  18.7 / 3.01   ft     0 /   0.0 / 1.04
+  E4 Node failure (node A frozen 15 s)        base    24 /  12.3 / 3.04   ft     0 /   0.0 / 2.13
+  E5 Interrupted payment + transcript batch   base    36 /  14.5 / 1.17   ft     0 /   0.0 / 0.38
+  E6 High load (80 concurrent clients)        base     0 /   0.0 / None   ft  3111 /  15.1 / 0.1

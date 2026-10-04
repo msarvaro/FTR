@@ -1,0 +1,126 @@
+# Fault-tolerant university information system (midterm, Sarvarov Mustafa)
+#   baseline:       FT_MODE=baseline RESTART=no SENTINEL_URL= docker compose up -d --build
+#   fault-tolerant: docker compose --profile ft up -d --build      (defaults below are the ft ones)
+# replicas that exist only in the ft version are in profile "ft"
+
+x-app: &app
+  build: .
+  image: uni-ft/app:1.0
+  restart: ${RESTART:-unless-stopped}
+  depends_on:
+    db-primary:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=1)"]
+    interval: 2s
+    timeout: 2s
+    retries: 10
+    start_period: 3s
+
+x-env: &env
+  FT_MODE: ${FT_MODE:-ft}
+  DB_HOSTS: db-primary,db-replica
+  DB_PORTS: 5432,5432
+  DB_USER: uni
+  DB_PASS: uni_pass
+  DB_NAME: university
+
+services:
+  db-primary:
+    image: postgres:16
+    restart: ${RESTART:-unless-stopped}
+    environment:
+      POSTGRES_USER: uni
+      POSTGRES_PASSWORD: uni_pass
+      POSTGRES_DB: university
+      REPLICATION_PASSWORD: repl_pass
+    command: >
+      postgres -c wal_level=replica -c max_wal_senders=10 -c max_connections=200 -c hot_standby=on
+    volumes:
+      - ./db/primary-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+      - ./app/schema.sql:/schema/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uni -d university"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  db-replica:
+    image: postgres:16
+    profiles: ["ft"]
+    restart: ${RESTART:-unless-stopped}
+    environment:
+      REPLICATION_PASSWORD: repl_pass
+      PGDATA: /var/lib/postgresql/data
+    entrypoint: ["sh", "/scripts/replica-entrypoint.sh"]
+    volumes:
+      - ./db/replica-entrypoint.sh:/scripts/replica-entrypoint.sh:ro
+    depends_on:
+      db-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uni -d university"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  db-sentinel:
+    <<: *app
+    profiles: ["ft"]
+    command: ["uvicorn", "sentinel:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *env
+      PRIMARY_HOST: db-primary
+      STANDBY_HOST: db-replica
+    depends_on:
+      db-replica:
+        condition: service_healthy
+
+  student-1:
+    <<: *app
+    command: ["uvicorn", "student:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: {<<: *env, SERVICE_NAME: student, INSTANCE: student-1}
+  student-2:
+    <<: *app
+    profiles: ["ft"]
+    command: ["uvicorn", "student:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: {<<: *env, SERVICE_NAME: student, INSTANCE: student-2}
+
+  payment-1:
+    <<: *app
+    command: ["uvicorn", "payment:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: {<<: *env, SERVICE_NAME: payment, INSTANCE: payment-1}
+  payment-2:
+    <<: *app
+    profiles: ["ft"]
+    command: ["uvicorn", "payment:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: {<<: *env, SERVICE_NAME: payment, INSTANCE: payment-2}
+
+  records:
+    <<: *app
+    command: ["uvicorn", "records:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: {<<: *env, SERVICE_NAME: records, INSTANCE: records-1}
+
+  timetable:
+    <<: *app
+    command: ["uvicorn", "timetable:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: {<<: *env, SERVICE_NAME: timetable, INSTANCE: timetable-1}
+    depends_on: []
+
+  gateway:
+    <<: *app
+    command: ["uvicorn", "gateway:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports: ["8080:8000"]
+    environment:
+      FT_MODE: ${FT_MODE:-ft}
+      SENTINEL_URL: ${SENTINEL_URL-http://db-sentinel:8000}
+      UPSTREAMS: >-
+        {"students": ["http://student-1:8000", "http://student-2:8000"],
+         "payments": ["http://payment-1:8000", "http://payment-2:8000"],
+         "records": ["http://records:8000"],
+         "timetable": ["http://timetable:8000"]}
+    depends_on:
+      student-1: {condition: service_healthy}
+      payment-1: {condition: service_healthy}
+      records: {condition: service_healthy}
+      timetable: {condition: service_healthy}
